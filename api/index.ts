@@ -11,7 +11,10 @@ app.use(express.urlencoded({ extended: false }));
 registerRoutes(app as unknown as any);
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
-  // Delegate to express
+  // Ensure Express sees the /api prefix even if Vercel strips it in routing
+  if (!req.url?.startsWith('/api')) {
+    req.url = `/api${req.url || ''}`;
+  }
   (app as any)(req, res);
 }
 
