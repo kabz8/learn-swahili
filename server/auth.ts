@@ -34,11 +34,14 @@ async function comparePasswords(supplied: string, stored: string) {
 
 export function setupAuth(app: Express) {
   const PostgresSessionStore = connectPg(session);
-  const sessionStore = new PostgresSessionStore({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: false, // Set to false to avoid index conflicts
-    tableName: 'sessions',
-  });
+  const useDb = Boolean(process.env.DATABASE_URL);
+  const sessionStore = useDb
+    ? new PostgresSessionStore({
+        conString: process.env.DATABASE_URL,
+        createTableIfMissing: false, // Set to false to avoid index conflicts
+        tableName: 'sessions',
+      })
+    : undefined;
 
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "default-secret-key",

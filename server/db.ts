@@ -5,11 +5,16 @@ import * as schema from "@shared/schema";
 
 neonConfig.webSocketConstructor = ws;
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
-}
+const connectionString = process.env.DATABASE_URL;
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-export const db = drizzle({ client: pool, schema });
+export const pool = connectionString
+  ? new Pool({ connectionString })
+  : undefined as unknown as Pool;
+
+export const db = connectionString
+  ? drizzle({ client: pool as Pool, schema })
+  : (new Proxy({}, {
+      get() {
+        throw new Error("DATABASE_URL is not configured. Set it in your environment (e.g. Vercel Project Settings) to enable database operations.");
+      }
+    }) as any);
