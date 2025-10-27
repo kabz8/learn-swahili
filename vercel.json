@@ -1,14 +1,19 @@
 {
   "version": 2,
   "builds": [
+    { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "public" } },
     { "src": "api/index.ts", "use": "@vercel/node" }
   ],
+  "functions": {
+    "api/index.ts": {
+      "includeFiles": "server/**"
+    }
+  },
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/index.ts" },
     { "src": "/(.*)", "dest": "/index.html" }
   ],
   "buildCommand": "npm run build:vercel",
-  "outputDirectory": "public",
   "env": {
     "NODE_ENV": "production"
   }
